@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:dist="http://schemas.android.com/apk/distribution"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Разрешения остаются без изменений -->
+
+    <dist:module
+        dist:instant="false"
+        dist:title="@string/title_messengersDynamicFeature">
+        <dist:delivery>
+            <dist:on-demand/>
+        </dist:delivery>
+        <dist:fusing dist:include="true"/>
+    </dist:module>
+
+    <permission android:name="org.maksec.messengersDynamicFeature.PERMISSION_NOTIFICATION_ACTION"
+        android:protectionLevel="normal" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="smsto" />
+        </intent>
+    </queries>
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="smsto" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="sms" />
+        </intent>
+    </queries>
+
+    <application>
+        <receiver
+            android:name="org.maksec.messengerscommonfeature.data.notifications.NotificationActionReceiver"
+            android:exported="true"
+            android:permission="org.maksec.messengersDynamicFeature.PERMISSION_NOTIFICATION_ACTION"
+            />
+
+        <!-- ОДИН сервис NotificationListener с полным путем -->
+        <service
+            android:name="org.maksec.messengersDynamicFeature.data.NotificationListener"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="org.maksec.messengerscommonfeature.data.MessagesService"
+            android:foregroundServiceType="dataSync"
+            android:exported="false" />
+
+        <!-- УДАЛИТЬ этот дублирующийся сервис (строки 40-47) -->
+
+        <receiver
+            android:name="org.maksec.messengersDynamicFeature.data.SmsReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS"
+            >
+            <intent-filter >
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Добавить ресивер для обработки кнопок уведомлений -->
+        <receiver
+            android:name="org.maksec.messengersDynamicFeature.data.SmsNotificationActionReceiver"
+            android:exported="false" />
+
+
+    </application>
+</manifest>
